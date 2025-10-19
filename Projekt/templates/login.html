@@ -1,0 +1,47 @@
+<!doctype html><html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prihlásenie</title>
+<style>body{font-family:system-ui,Arial,sans-serif;background:#f7f7f7;margin:0;display:flex;align-items:center;justify-content:center;height:100vh}
+.card{background:#fff;padding:24px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);width:320px}
+h1{font-size:18px;margin:0 0 16px}label{display:block;font-size:13px;color:#555;margin:8px 0 4px}input{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px}
+button{width:100%;padding:10px;margin-top:12px;border:0;border-radius:6px;background:#db0255;color:#fff;font-weight:600;cursor:pointer}.msg{color:#c00;font-size:13px;min-height:20px;margin-top:8px}</style>
+</head><body><div class="card"><h1>Prihlásenie</h1><label>Používateľ</label><input id="username" autocomplete="username">
+<label>Heslo</label><input id="password" type="password" autocomplete="current-password"><button id="btn">Prihlásiť</button><div id="msg" class="msg"></div></div>
+<script>
+function getCookie(name){
+  return document.cookie.split('; ').reduce((a,c)=>{
+    const [k,v]=c.split('=');
+    return k===name?decodeURIComponent(v):a;
+  },'');
+}
+
+document.getElementById('btn').addEventListener('click', async ()=>{
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  document.getElementById('msg').textContent = '';
+
+  try {
+    const xsrf = getCookie('XSRF-TOKEN') || '';
+    const resp = await fetch('/api/internal/login', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': xsrf },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await resp.json().catch(()=> ({}));
+    if (!resp.ok || !data.user) {
+      throw new Error(data.error || 'Nesprávne meno alebo heslo');
+    }
+
+    const role = data.user.role;
+    if (role === 'kancelaria')      location.href = '/kancelaria';
+    else if (role === 'expedicia')  location.href = '/expedicia';
+    else                            location.href = '/vyroba';
+
+  } catch (e) {
+    document.getElementById('msg').textContent = e.message || 'Chyba prihlásenia';
+  }
+});
+</script>
+
+
+</body></html>

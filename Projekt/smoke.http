@@ -1,0 +1,21 @@
+### VS Code REST Client smoke tests
+@base = http://127.0.0.1:5000
+
+### Check session (expect 401)
+GET {{base}}/api/internal/check_session
+
+### Login (update email/password to real values)
+POST {{base}}/api/internal/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin"
+}
+
+### Check login status
+GET {{base}}/api/internal/check_session
+
+### Kancelaria: Get categories
+GET {{base}}/api/kancelaria/raw/getCategories
+

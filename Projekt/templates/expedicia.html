@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <title>Expedícia • ERP MIK</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
+  <!-- Štýly pre Expedíciu -->
+  <link rel="stylesheet" href="/static/css/expedicia.css">
+
+  <!-- Webfont -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="icon" type="image/png" href="/static/img/logo.png">
+</head>
+<body>
+  <!-- LOGIN VIEW (zobrazuje sa ak nie si prihlásený) -->
+  <div id="login-wrapper" class="login-container" hidden>
+    <div class="login-card">
+      <h2>Prihlásenie do Expedície</h2>
+      <form id="login-form">
+        <label for="login-username">Používateľské meno</label>
+        <input id="username" name="username" type="text" autocomplete="username" required>
+        <label for="login-password">Heslo</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button type="submit" class="btn btn-primary">Prihlásiť</button>
+      </form>
+      <div id="login-status" class="muted" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div id="expedicia-app" class="expedicia-app">
+    <!-- HLAVIČKA -->
+    <header class="topbar">
+      <div class="brand">Expedícia</div>
+      <div class="spacer"></div>
+      <button id="btn-logout" class="btn btn-danger" type="button">Odhlásiť sa</button>
+      <div id="status-bar" class="status" aria-live="polite"></div>
+    </header>
+
+    <div class="layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <nav class="nav">
+          <a class="nav-item active" data-view="view-expedition-menu">Menu</a>
+          <a class="nav-item" data-view="view-expedition-date-selection">Prevzatie z výroby</a>
+          <a class="nav-item" data-view="view-expedition-inventory">Inventúra</a>
+          <a class="nav-item" data-view="view-expedition-manual-receive">Manuálny príjem</a>
+          <a class="nav-item" data-view="view-expedition-slicing-request">Požiadavka krájanie</a>
+          <a class="nav-item" data-view="view-expedition-manual-damage">Odpis škody</a>
+          <a class="nav-item" data-view="view-expedition-scanner">Skenovanie</a>
+        </nav>
+      </aside>
+
+      <!-- OBSAH -->
+      <main id="expedition-module-container" class="content">
+
+        <!-- MENU -->
+        <section id="view-expedition-menu" class="view active">
+          <h2>Hlavné menu</h2>
+
+          <div class="card">
+            <div class="row buttons">
+              <button class="btn btn-primary" id="btn-load-dates">Prevziať tovar z výroby</button>
+              <button class="btn btn-primary" id="btn-open-scanner">Skenovať šaržu</button>
+              <button class="btn btn-warning" id="btn-open-inventory">Inventúra</button>
+              <button class="btn btn-success" id="btn-open-manual-receive">Manuálny príjem</button>
+              <button class="btn btn-info"    id="btn-open-slicing">Požiadavka krájanie</button>
+              <button class="btn btn-danger"  id="btn-open-damage">Odpis škody</button>
+            </div>
+          </div>
+
+          <div class="card" id="slicing-card">
+            <h3>Prebiehajúce krájanie</h3>
+            <div id="pending-slicing-container" class="table-wrap">
+              <p class="muted">Načítavam…</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Výber dátumu -->
+        <section id="view-expedition-date-selection" class="view" style="display:none">
+          <h2>Zvoľte deň výroby</h2>
+          <div id="expedition-date-container" class="buttons"></div>
+        </section>
+
+        <!-- Zoznam dávok na prevzatie -->
+        <section id="view-expedition-batch-list" class="view" style="display:none">
+          <div class="toolbar">
+            <h2 id="expedition-batch-list-title">Prevzatie výrobkov</h2>
+            <label>Meno preberajúceho <input id="expedition-worker-name" type="text" placeholder="Meno pracovníka"></label>
+          </div>
+          <div id="expedition-batch-table" class="table-wrap"></div>
+          <div id="expedition-action-buttons" class="row right"></div>
+        </section>
+
+        <!-- Inventúra -->
+        <section id="view-expedition-inventory" class="view" style="display:none">
+          <h2>Inventúra finálnych produktov</h2>
+          <label>Pracovník inventúry <input id="inventory-worker-name" type="text" placeholder="Meno pracovníka"></label>
+          <div id="product-inventory-tables-container"></div>
+          <div class="row right"><button class="btn btn-warning" id="btn-submit-inventory">Uložiť inventúru</button></div>
+        </section>
+
+        <!-- Manuálny príjem -->
+        <section id="view-expedition-manual-receive" class="view" style="display:none">
+          <h2>Manuálny príjem</h2>
+          <div class="row grid3">
+            <label>Meno <input id="manual-receive-worker-name" type="text"></label>
+            <label>Dátum <input id="manual-receive-date" type="date"></label>
+            <label>Produkt <select id="manual-receive-product-select"></select></label>
+          </div>
+          <label>Množstvo (ks/kg) <input id="manual-receive-quantity" type="number" step="0.001" min="0"></label>
+          <div class="row right"><button class="btn btn-success" id="btn-submit-manual-receive">Potvrdiť príjem</button></div>
+        </section>
+
+        <!-- Požiadavka krájanie -->
+        <section id="view-expedition-slicing-request" class="view" style="display:none">
+          <h2>Požiadavka na krájanie</h2>
+          <div class="row grid2">
+            <label>Produkt (balíček) <select id="slicing-product-select"></select></label>
+            <label>Počet kusov <input id="slicing-planned-pieces" type="number" min="1"></label>
+          </div>
+          <div class="row right"><button class="btn btn-info" id="btn-submit-slicing">Vytvoriť požiadavku</button></div>
+        </section>
+
+        <!-- Odpis škody -->
+        <section id="view-expedition-manual-damage" class="view" style="display:none">
+          <h2>Ručný odpis</h2>
+          <div class="row grid3">
+            <label>Meno <input id="damage-worker-name" type="text"></label>
+            <label>Produkt <select id="damage-product-select"></select></label>
+            <label id="damage-quantity-label">Množstvo (ks/kg) <input id="damage-quantity" type="number" step="0.001" min="0"></label>
+          </div>
+          <label>Dôvod <input id="damage-note" type="text" placeholder="dôvod/poznámka"></label>
+          <div class="row right"><button class="btn btn-danger" id="btn-submit-damage">Potvrdiť odpis</button></div>
+        </section>
+
+        <!-- Skenovanie -->
+        <section id="view-expedition-scanner" class="view" style="display:none">
+          <h2>Skenovanie šarže</h2>
+
+          <div class="scanner">
+            <label>QR/čiarový kód alebo BATCH:&lt;id&gt;
+              <input id="scanBox"
+                     placeholder="Naskenuj kód a stlač Enter"
+                     autocomplete="off"
+                     style="padding:.5rem .6rem; border:1px solid #ccc; border-radius:6px; max-width:320px;">
+            </label>
+            <p class="muted">Tip: klávesnicový skener väčšinou sám odošle Enter – stačí namieriť a pípnuť.</p>
+
+            <div class="row" style="gap:.5rem; margin:.5rem 0 1rem;">
+              <button class="btn btn-primary" id="btn-print-letter" disabled>Vytlačiť sprievodný list</button>
+              <button class="btn" id="btn-clear-scan" type="button">Vyčistiť</button>
+            </div>
+          </div>
+
+          <div id="scan-result" class="table-wrap"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL na tlač (iframe) -->
+  <div id="printModal" class="hidden fixed inset-0 bg-black/40 z-50">
+    <div class="bg-white w-[900px] max-w-[95%] mx-auto my-6 rounded shadow-lg overflow-hidden">
+      <div class="flex items-center justify-between p-3 border-b">
+        <strong>Sprievodný list výrobku</strong>
+        <div class="space-x-2">
+          <button onclick="printIframe()" class="px-3 py-1 border rounded">Tlačiť / PDF</button>
+          <button onclick="closePrintModal()" class="px-3 py-1 border rounded">Zavrieť</button>
+        </div>
+      </div>
+      <iframe id="printFrame" style="width:100%; height:75vh; border:0"></iframe>
+    </div>
+  </div>
+
+  <!-- Spoločné utility -->
+<script defer src="/static/js/common.js?v=gate1"></script>
+  <!-- Hlavný JS modulu Expedícia -->
+  <script defer src="/static/js/expedicia.js?v=2"></script>  
+</body>
+</html>

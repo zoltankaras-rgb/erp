@@ -1,0 +1,29 @@
+<!doctype html><html lang="sk"><head>
+<meta charset="utf-8"><title>Fleet report</title>
+<style>body{font:14px system-ui,Arial} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:6px} th{background:#f8f8f8}</style>
+</head><body>
+<h1>Report – {{ vehicle.name }} ({{ vehicle.license_plate }})</h1>
+<p>Obdobie: {{ period }}</p>
+
+<h2>Zhrnutie</h2>
+<ul>
+  <li>Celkové náklady: {{ '{:,.2f}'.format(analysis.total_costs) }} €</li>
+  <li>Celkovo najazdené: {{ analysis.total_km }} km</li>
+  <li>Priemerná spotreba: {{ '{:,.2f}'.format(analysis.avg_consumption) }} L/100km</li>
+  <li>Náklad / km: {{ '{:,.4f}'.format(analysis.cost_per_km) }} €</li>
+</ul>
+
+<h2>Tankovania</h2>
+<table><thead><tr><th>Dátum</th><th>Vodič</th><th>Litre</th><th>Cena/L</th><th>Spolu</th></tr></thead><tbody>
+{% for r in refuelings %}
+<tr><td>{{ r.refueling_date }}</td><td>{{ r.driver or '' }}</td><td>{{ r.liters }}</td><td>{{ r.price_per_liter or '' }}</td><td>{{ r.total_price or '' }}</td></tr>
+{% endfor %}
+</tbody></table>
+
+<h2>Logbook</h2>
+<table><thead><tr><th>Dátum</th><th>Vodič</th><th>Zač. km</th><th>Kon. km</th><th>Najazdené</th><th>Vývoz kg</th><th>Dovoz kg</th><th>DL</th></tr></thead><tbody>
+{% for l in logs %}
+<tr><td>{{ l.log_date }}</td><td>{{ l.driver or '' }}</td><td>{{ l.start_odometer or '' }}</td><td>{{ l.end_odometer or '' }}</td><td>{{ l.km_driven or '' }}</td><td>{{ l.goods_out_kg or '' }}</td><td>{{ l.goods_in_kg or '' }}</td><td>{{ l.delivery_notes_count or '' }}</td></tr>
+{% endfor %}
+</tbody></table>
+</body></html>

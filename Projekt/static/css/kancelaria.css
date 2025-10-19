@@ -1,0 +1,253 @@
+/* ===================================================================
+   KANCELARIA.CSS — čistý layout, sekčné prepínanie, tlačidlá, tabuľky
+   =================================================================== */
+
+/* ---------- Premenné ---------- */
+:root{
+  --brand:#c62828; --brand-600:#d32f2f; --brand-700:#b71c1c;
+  --bg:#ffffff; --bg-alt:#f7f7f9;
+  --text:#111827; --muted:#6b7280;
+  --card:#ffffff; --border:#e5e7eb;
+  --shadow:0 10px 24px rgba(0,0,0,.06);
+
+  --fgap:12px;
+  --field-min:220px;
+  --field-max:360px;
+  --radius:10px;
+}
+
+/* ---------- Reset & base ---------- */
+*{ box-sizing:border-box }
+html,body{ height:100% }
+body{
+  margin:0;
+  font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text);
+  background:var(--bg-alt);
+}
+
+/* ---------- Sekcie (KRITICKÉ) ---------- */
+.section, .content-section{ display:none; }
+.section.active, .content-section.active{ display:block; }
+
+/* ---------- Top bar ---------- */
+.topbar{
+  height:64px; background:var(--brand); color:#fff;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; box-shadow:var(--shadow); position:sticky; top:0; z-index:1000;
+}
+.brand{ display:flex; align-items:center; gap:12px; }
+.brand-logo{
+  width:34px; height:34px; border-radius:6px; object-fit:contain;
+  background:#fff; padding:3px; box-shadow:0 2px 6px rgba(0,0,0,.25)
+}
+.brand-title{ font-weight:700; letter-spacing:.3px }
+.top-actions .btn.btn-outline{ background:transparent;border:1px solid #fff;color:#fff }
+.top-actions .btn.btn-outline:hover{ background:rgba(255,255,255,.12) }
+
+/* ---------- Layout ---------- */
+.layout{
+  display:grid; grid-template-columns:260px 1fr;
+  min-height:calc(100vh - 64px);
+}
+.sidebar{ background:#fff; border-right:1px solid var(--border); padding:18px 14px; }
+.content{ padding:24px }
+
+/* ---------- Sidebar nav ---------- */
+.nav{ display:flex; flex-direction:column; gap:6px; }
+.nav-link{
+  display:block; padding:10px 12px; border-radius:10px;
+  color:var(--text); text-decoration:none; font-weight:600;
+}
+.nav-link:hover{ background:#f0f2f5 }
+.nav-link.active{ background:var(--brand); color:#fff }
+.nav-link .nav-badge{
+  display:inline-block; min-width:18px; padding:0 6px; margin-left:6px;
+  border-radius:999px; background:#d33; color:#fff; font-size:12px; text-align:center;
+}
+
+/* ---------- Karty & utility ---------- */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.mt{ margin-top:16px }
+.row{ display:flex; align-items:center; }
+.wrap{ flex-wrap:wrap }
+.gap{ gap:10px }
+.right{ justify-content:flex-end }
+.muted{ color:var(--muted) }
+.hidden{ display:none !important }
+
+/* ---------- Toolbar ---------- */
+.toolbar{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:12px; }
+.toolbar-center{ justify-content:center; }
+
+/* ---------- Tlačidlá ---------- */
+.btn{
+  border:1px solid var(--border);
+  background:#fff;
+  color:#111827;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn:hover{ background:#f7f7f7 }
+.btn-primary{ background:var(--brand-600); color:#fff; border-color:var(--brand-600) }
+.btn-primary:hover{ background:var(--brand-700) }
+.btn-danger{ background:#c62828; color:#fff; border-color:#c62828 }
+.btn-danger:hover{ background:#b71c1c }
+.btn-danger-outline{
+  background:#fff; color:#c62828; border:1px solid #c62828;
+  border-radius:10px; height:38px; padding:0 14px;
+}
+.btn-danger-outline:hover{ background:#ffe5e5 }
+
+/* Fokus (prístupnosť) */
+button:focus-visible, .btn:focus-visible, a.btn:focus-visible,
+input:focus-visible, select:focus-visible{
+  outline:2px solid #2563eb; outline-offset:2px;
+}
+
+/* ---------- Inputs & selects ---------- */
+input, select{
+  height:38px; border:1px solid var(--border); border-radius:10px;
+  padding:0 10px; font:inherit; background:#fff; color:inherit;
+}
+
+/* ---------- Form grid ---------- */
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(var(--field-min), 1fr));
+  gap:var(--fgap);
+  align-items:start;
+  max-width:1140px;
+}
+.form-3{ grid-template-columns:repeat(3, minmax(var(--field-min),1fr)); }
+@media (max-width:1200px){ .form-3{ grid-template-columns:repeat(2, minmax(var(--field-min),1fr)); } }
+@media (max-width:720px){ .form-3{ grid-template-columns:1fr; } }
+.form-grid label{
+  display:flex; flex-direction:column; gap:6px;
+  max-width:var(--field-max);
+  font-weight:600; color:#374151;
+}
+.form-grid label small{ font-weight:400; color:var(--muted); }
+.form-grid input[type="text"],
+.form-grid input[type="number"],
+.form-grid input[type="date"],
+.form-grid input[type="month"],
+.form-grid select{
+  width:100%; padding:10px 12px; border:1px solid var(--border);
+  border-radius:var(--radius); outline:none;
+}
+.form-grid input[type="number"]{ text-align:right; }
+.form-grid input[type="number"]::-webkit-outer-spin-button,
+.form-grid input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.form-grid input[type="number"]{ appearance:textfield; -moz-appearance:textfield; }
+
+/* ---------- Tabuľky ---------- */
+.table-wrap{
+  overflow:auto; border:1px solid var(--border);
+  border-radius:12px; background:#fff;
+}
+.table{ width:100%; table-layout:fixed; border-collapse:collapse; }
+.table thead th{
+  text-align:left; font-weight:700; color:#374151;
+  padding:12px; background:#fff; border-bottom:1px solid var(--border); white-space:nowrap;
+}
+.table tbody td{ padding:12px; border-bottom:1px solid var(--border); }
+.table tfoot td{ padding:12px; background:#fff; border-top:1px solid var(--border); }
+.table .num, .table th.num, .table td.num{
+  text-align:right !important;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1, "lnum" 1;
+}
+/* Stacked štýl: názov + číslo pod ním (použi <div class="t-title"> a <div class="t-value">) */
+.t-title{ display:block; font-weight:600; }
+.t-value{ display:block; color:#111; margin-top:2px; }
+
+/* Šírky pre sklad */
+.table col.col-name  { width:46%; }
+.table col.col-qty,
+.table col.col-price,
+.table col.col-value { width:18%; }
+
+/* ---------- Stock (centrický panel) ---------- */
+#section-stock .card{ max-width:1280px; margin:0 auto; }
+#stock-pane{ position:relative; z-index:3; }
+#stock-pane, #stock-pane *{ pointer-events:auto; }
+
+#section-stock .filters-card{ margin-top:12px; }
+#section-stock .filters-card .toolbar{ justify-content:flex-start; }
+#section-stock .filters-card label{ display:flex; align-items:center; gap:8px; }
+
+/* ---------- Modal (ak ho používaš) ---------- */
+.modal.hidden{ display:none; }
+.modal{ position:fixed; inset:0; z-index:9999; }
+.modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
+.modal__dialog{
+  position:relative; margin:5vh auto; max-width:1100px; width:96%;
+  background:#fff; border-radius:10px; padding:16px 18px;
+  max-height:90vh; overflow:auto; box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+.modal__close{
+  position:absolute; right:10px; top:8px;
+  border:0; background:transparent; font-size:28px; line-height:1; cursor:pointer;
+}
+.modal__content{ min-height:200px; }
+
+/* Tlač modalu (iba obsah modalu sa tlačí) */
+@media print{
+  body *{ visibility:hidden !important; }
+  #modal-root, #modal-root *{ visibility:visible !important; }
+  #modal-root{ position:static !important; }
+  .modal__backdrop, .modal__close{ display:none !important; }
+  .modal__dialog{ box-shadow:none; width:100%; max-width:100%; margin:0; padding:0; }
+}
+
+/* ---------- Drobná typografia ---------- */
+h1,h2,h3,h4{ margin:0 0 8px 0; }
+h2{ font-size:22px }
+h3{ font-size:18px }
+h4{ font-size:16px; color:#374151 }
+
+/* ---------- Odkazy ako tlačidlá (pre prípad) ---------- */
+a.btn{ display:inline-block; text-decoration:none; }
+
+/* ---------- Pomocné utility ---------- */
+.w-100{ width:100% }
+.text-right{ text-align:right }
+.text-center{ text-align:center }
+/* openModal() používa .modal-root – zarovnaj ju na stred */
+.modal-root{
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.45);
+  z-index: 10000;
+}
+.modal-root:empty { display: none; }
+.modal-root .sheet{
+  background:#fff; max-width: 900px; width: 96%;
+  border-radius: 10px; padding: 16px 18px; box-shadow: var(--shadow);
+}
+/* === Recepty – profi header === */
+.rcp-header { padding: 12px; }
+.rcp-top{ display:flex; gap:16px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
+.rcp-left{ min-width: 480px; flex:1; }
+.rcp-search input{ width: 240px; }
+.rcp-product select{ min-width: 260px; }
+.rcp-kpis{ display:grid; grid-template-columns: repeat(4,minmax(140px,1fr)); gap:10px; margin-top:10px; }
+.kpi{ border:1px solid var(--border); border-radius:10px; padding:10px; background:#fff; }
+.kpi-name{ font-size:12px; color:var(--muted); margin-bottom:4px; }
+.kpi-val{ font-weight:700; font-size:16px; }
+.btn-tab{ border:1px solid var(--border); background:#fff; border-radius:10px; padding:8px 12px; cursor:pointer; }
+.btn-tab.active{ background:#ffe9e9; color:var(--brand-700); border-color: var(--brand-600); }
+
+/* modal center (ui/modal.js používa .modal-root .sheet) */
+.modal-root{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.45); z-index:10000; }
+.modal-root:empty{ display:none; }
+.modal-root .sheet{ background:#fff; max-width:900px; width:96%; border-radius:10px; padding:16px 18px; box-shadow:var(--shadow); }

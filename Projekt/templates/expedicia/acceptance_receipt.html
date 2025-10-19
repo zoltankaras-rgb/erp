@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <title>Príjemka – {{ info.accept_id }}</title>
+  <style>
+    body{font-family:Inter,Arial,sans-serif;margin:24px}
+    h1{margin:0 0 6px}
+    .muted{color:#6b7280}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{border:1px solid #e5e7eb;padding:8px;text-align:left}
+    th{background:#f9fafb}
+    tfoot td{font-weight:700}
+    .right{text-align:right}
+    .code{font-family:monospace}
+  </style>
+</head>
+<body>
+  <h1>Príjemka – Expedícia</h1>
+  <div class="muted">Kód: <span class="code">ACC:{{ info.accept_id }}</span> &nbsp; | &nbsp; Dátum: {{ info.when }}</div>
+
+  {% if info.items and info.items|length > 0 %}
+  <table>
+    <thead><tr><th>Produkt</th><th class="right">Množstvo (kg)</th><th class="right">Jedn. cena</th></tr></thead>
+    <tbody>
+    {% for r in info.items %}
+      <tr>
+        <td>{{ r.produkt }}</td>
+        <td class="right">{{ '%.3f'|format(r.qty or 0) }}</td>
+        <td class="right">{{ '%.4f'|format(r.unit_cost or 0) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot><tr><td>Spolu</td><td class="right">{{ '%.3f'|format(info.total_kg or 0) }}</td><td></td></tr></tfoot>
+  </table>
+  {% else %}
+  <p>Žiadne položky.</p>
+  {% endif %}
+
+  <p class="muted">Na balíku/sklade skenuj „ACC:{{ info.accept_id }}“ a vyvoláš príjemku aj trasovanie vstupov.</p>
+  <script>window.print()</script>
+</body>
+</html>

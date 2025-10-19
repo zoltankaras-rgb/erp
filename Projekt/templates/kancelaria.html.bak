@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8" />
+  <title>Kancelária</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- fonts & icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- hlavný štýl pre Kanceláriu -->
+  <link rel="stylesheet" href="/static/css/kancelaria.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1>Modul Kancelária</h1>
+      <button id="logout-btn" class="btn btn-danger">Odhlási?</button>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <nav>
+          <a data-section="dashboard" class="active">Dashboard</a>
+          <a data-section="stock">Sklad</a>
+          <a data-section="planning">Plánovanie</a>
+          <a data-section="erp">ERP Admin</a>
+          <a data-section="b2b">B2B</a>
+          <a data-section="b2c">B2C</a>
+          <a data-section="haccp">HACCP</a>
+          <a data-section="fleet">Flotila</a>
+          <a data-section="hygiene">Hygiena</a>
+          <a data-section="profitability">Ziskovos?</a>
+          <a data-section="costs">Náklady</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <!-- Dashboard -->
+        <section id="section-dashboard" class="section active">
+          <h2>Dashboard</h2>
+          <div id="dashboard-slot"><!-- sem ti doplní JS dashboard --></div>
+        </section>
+
+        <!-- Sklad -->
+        <section id="section-stock" class="section">
+          <h2>Sklad</h2>
+
+          <div class="row gap">
+            <button id="stock-show-overview" class="btn">Preh?ad skladu</button>
+            <button id="stock-open-receive-meat"  class="btn btn-primary">Príjem Mäso</button>
+            <button id="stock-open-receive-other" class="btn btn-primary">Príjem Koreniny/Obaly/Pomocný materiál</button>
+            <button id="stock-open-reports" class="btn">Reporty príjmu</button>
+            <button id="stock-open-writeoff" class="btn btn-danger">Odpis</button>
+          </div>
+
+          <!-- Reporty príjmu -->
+          <div id="stock-reports-panel" class="card mt hidden">
+            <h3>Reporty príjmu (výrobný sklad)</h3>
+            <div class="row gap" style="flex-wrap:wrap;">
+              <label>Rozsah
+                <select id="rep-period">
+                  <option value="week">Posledných 7 dní</option>
+                  <option value="month">Tento mesiac</option>
+                  <option value="range">Vlastné</option>
+                </select>
+              </label>
+              <label>Od <input type="date" id="rep-from"></label>
+              <label>Do <input type="date" id="rep-to"></label>
+              <label>Kategórie
+                <select id="rep-scope">
+                  <option value="all">Všetko</option>
+                  <option value="meat">Mäso</option>
+                  <option value="other">Koreniny/Obaly/Pomocný</option>
+                </select>
+              </label>
+              <button id="rep-run" class="btn">Zobrazi?</button>
+              <button id="rep-pdf" class="btn btn-primary">Stiahnu? PDF</button>
+            </div>
+
+            <div class="table-wrap mt">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Kategória</th>
+                    <th>Dodávate?</th>
+                    <th>Produkt</th>
+                    <th class="num">Množstvo</th>
+                    <th class="num">Priem. cena</th>
+                    <th class="num">Hodnota (€)</th>
+                  </tr>
+                </thead>
+                <tbody id="rep-tbody"></tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="5" class="num"><strong>Celkom</strong></td>
+                    <td id="rep-total" class="num"><strong>0.00</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Filtre (sklad = 1 používame fixne) -->
+          <div id="stock-filters" class="row gap mt hidden">
+            <label>Výrobný sklad
+              <select id="stock-warehouse"></select>
+            </label>
+            <label>Kategória
+              <select id="stock-category"></select>
+            </label>
+            <button id="stock-refresh" class="btn">Filtrova?</button>
+          </div>
+
+          <!-- Preh?ad skladu -->
+          <div id="stock-overview" class="card mt hidden">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Sklad</th>
+                    <th>EAN</th>
+                    <th>Produkt</th>
+                    <th>Kategória</th>
+                    <th class="num">Množstvo</th>
+                    <th class="num">Priem. cena</th>
+                    <th class="num">Hodnota (€)</th>
+                  </tr>
+                </thead>
+                <tbody id="stock-tbody"></tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" class="num"><strong>Celkom</strong></td>
+                    <td id="stock-total" class="num"><strong>0.00</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Plánovanie -->
+        <section id="section-planning" class="section">
+          <h2>Plánovanie</h2>
+        </section>
+
+        <!-- ERP Admin -->
+        <section id="section-erp" class="section">
+          <h2>ERP Admin</h2>
+
+          <div class="row gap">
+            <button id="erp-tab-overview" class="btn">Preh?ad katalógu</button>
+            <button id="erp-tab-addcat"  class="btn">Prida? predajnú kategóriu</button>
+            <button id="erp-tab-addprod" class="btn btn-primary">Prida? produkt</button>
+            <button id="erp-tab-recipes" class="btn">Recepty</button>
+          </div>
+
+          <!-- Preh?ad katalógu -->
+          <div id="erp-panel-overview" class="card mt" style="display:none;">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>EAN</th>
+                    <th>Názov</th>
+                    <th>DPH %</th>
+                    <th>Predajná kategória</th>
+                    <th>Jednotka</th>
+                    <th>Ja vyrábam?</th>
+                  </tr>
+                </thead>
+                <tbody id="erp-overview-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Prida? predajnú kategóriu -->
+          <div id="erp-panel-addcat" class="card mt" style="display:none;">
+            <h3>Prida? predajnú kategóriu</h3>
+            <div class="row gap">
+              <input id="erp-cat-name" placeholder="Názov kategórie" />
+              <button id="erp-cat-save" class="btn btn-primary">Uloži?</button>
+            </div>
+            <p id="erp-cat-msg"></p>
+            <div id="erp-cat-list" class="mt"></div>
+          </div>
+
+          <!-- Prida? produkt -->
+          <div id="erp-panel-addprod" class="card mt" style="display:none;">
+            <h3>Prida? produkt do centrálneho katalógu</h3>
+            <div class="grid" style="display:grid;grid-template-columns:repeat(2,minmax(240px,1fr));gap:.5rem;">
+              <label>EAN (volite?né)<input id="erp-prod-ean"/></label>
+              <label>Názov produktu<input id="erp-prod-name"/></label>
+              <label>DPH
+                <select id="erp-prod-vat">
+                  <option value="5">5%</option>
+                  <option value="10">10%</option>
+                  <option value="19">19%</option>
+                  <option value="20" selected>20%</option>
+                  <option value="23">23%</option>
+                </select>
+              </label>
+              <label>Predajná kategória<select id="erp-prod-sc"></select></label>
+              <label>Jednotka
+                <select id="erp-prod-unit">
+                  <option value="kg">kg</option>
+                  <option value="ks">ks</option>
+                </select>
+              </label>
+              <label style="align-self:end;"><input type="checkbox" id="erp-prod-isprod" /> Ja vyrábam</label>
+            </div>
+            <div class="row gap mt" style="justify-content:flex-end;">
+              <button id="erp-prod-save" class="btn btn-primary">Uloži? produkt</button>
+            </div>
+            <p id="erp-prod-msg"></p>
+          </div>
+
+          <!-- Recepty -->
+          <div id="erp-panel-recipes" class="card mt" style="display:none;">
+            <div class="row gap" style="flex-wrap:wrap;">
+              <label>Výrobok
+                <select id="rcp-product"></select>
+              </label>
+              <button id="rcp-load" class="btn">Na?íta? recept</button>
+            </div>
+
+            <!-- Parametre výroby -->
+            <div class="card mt" id="rcp-meta">
+              <h4>Parametre výroby</h4>
+              <div class="row gap" style="flex-wrap:wrap;">
+                <label>Je výrobok?
+                  <input type="checkbox" id="rcp-isprod">
+                </label>
+                <label>Výrobná kategória
+                  <select id="rcp-prodcat"></select>
+                </label>
+                <label>Výrobná jednotka
+                  <select id="rcp-unit">
+                    <option value="kg">kg</option>
+                    <option value="ks">ks</option>
+                  </select>
+                </label>
+                <label id="rcp-piece-weight-wrap" style="display:none;">Hmotnos? kusu (g)
+                  <input type="number" id="rcp-piece-weight" min="1" step="1" value="200">
+                </label>
+
+                <button id="rcp-meta-save" class="btn btn-primary">Uloži? parametre</button>
+                <button id="rcp-prodcat-manage" class="btn">Správa výrobných kategórií</button>
+              </div>
+              <p id="rcp-meta-msg"></p>
+            </div>
+
+            <!-- Editor receptu -->
+            <div class="table-wrap mt">
+              <table>
+                <thead>
+                  <tr><th>Materiál (surovina)</th><th class="num">Množstvo na 100 kg</th><th></th></tr>
+                </thead>
+                <tbody id="rcp-tbody"></tbody>
+              </table>
+            </div>
+            <div class="row gap mt">
+              <button id="rcp-add-row" class="btn">+ Prida? položku</button>
+              <div style="flex:1"></div>
+              <button id="rcp-save" class="btn btn-primary">Uloži? recept</button>
+            </div>
+
+            <hr class="mt">
+            <h4>Rýchly výpo?et potreby zo skladu</h4>
+            <div class="row gap">
+              <label>Plánovaná dávka (kg)
+                <input type="number" id="rcp-planned" step="0.1" value="100">
+              </label>
+              <button id="rcp-calc" class="btn">Prepo?íta?</button>
+            </div>
+            <div class="table-wrap mt">
+              <table>
+                <thead>
+                  <tr><th>Materiál</th><th class="num">Potrebné</th><th class="num">Sklad (WH=1)</th><th>OK?</th></tr>
+                </thead>
+                <tbody id="rcp-calc-tbody"></tbody>
+              </table>
+            </div>
+
+            <div class="row gap mt" style="justify-content:flex-end;">
+              <!-- Výrobu spúš?a neskôr modul Výroba, tu necháme len kalkuláciu -->
+              <button id="rcp-start" class="btn btn-danger" disabled title="Výroba sa spúš?a v module Výroba">Spusti? výrobu (v module Výroba)</button>
+            </div>
+            <p id="rcp-msg"></p>
+          </div>
+        </section>
+
+        <!-- Ostatné sekcie (zatia? ako placeholdery) -->
+        <section id="section-b2b" class="section"><h2>B2B</h2></section>
+        <section id="section-b2c" class="section"><h2>B2C</h2></section>
+        <section id="section-haccp" class="section"><h2>HACCP</h2></section>
+        <section id="section-fleet" class="section"><h2>Flotila</h2></section>
+        <section id="section-hygiene" class="section"><h2>Hygiena</h2></section>
+        <section id="section-profitability" class="section"><h2>Ziskovos?</h2></section>
+        <section id="section-costs" class="section"><h2>Náklady</h2></section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal root -->
+  <div id="modal-root" class="modal-root hidden"></div>
+
+  <!-- základné skripty -->
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/kancelaria.js"></script>
+
+  <!-- modulové skripty (absolútne cesty) -->
+  <script type="module" src="/static/js/ui/modal.js"></script>
+  <script type="module" src="/static/js/kancelaria/index.js"></script>
+  <script type="module" src="/static/js/kancelaria/stock.js"></script>
+  <script type="module" src="/static/js/kancelaria_modules/erp_admin.js"></script>
+</body>
+</html>

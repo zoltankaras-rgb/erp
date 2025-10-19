@@ -1,0 +1,280 @@
+:root{
+  --brand:#c62828;      /* primárna červená */
+  --brand-600:#d32f2f;
+  --brand-700:#b71c1c;
+  --accent:#ef5350;
+  --bg:#ffffff;
+  --bg-alt:#f7f7f9;
+  --text:#111827;
+  --muted:#6b7280;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --shadow:0 10px 24px rgba(0,0,0,.06);
+}
+
+/* ==== základ / reset ==== */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text);
+  background:var(--bg-alt);
+}
+
+/* ==== horná lišta ==== */
+.topbar{
+  height:64px;
+  background:var(--brand);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  box-shadow:var(--shadow);
+  position:sticky; top:0; z-index:1000;
+}
+.topbar .brand{font-weight:700; letter-spacing:.2px}
+#status-bar{
+  margin-left:12px; padding:6px 10px; border-radius:10px;
+  background:rgba(255,255,255,.15);
+}
+#status-bar.error{ background:#ffecec; color:#b00020 }
+
+/* ==== layout: sidebar + obsah ==== */
+.layout{display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 64px)}
+.sidebar{
+  background:#fff;
+  border-right:1px solid var(--border);
+  padding:18px 14px;
+}
+.nav{display:flex; flex-direction:column; gap:6px;}
+/* tvoje odkazy v menu: .nav-item -> vyzerajú ako .nav-link z Kancelárie */
+.nav-item{
+  display:block;
+  padding:10px 12px;
+  border-radius:10px;
+  color:var(--text);
+  text-decoration:none;
+  font-weight:600;
+  cursor:pointer;
+}
+.nav-item:hover{background:var(--bg-alt)}
+.nav-item.active{background:var(--brand); color:#fff}
+
+.content{padding:24px;}
+
+/* ==== views – zobrazujeme iba aktívny ==== */
+.view{display:none}
+.view.active{display:block}
+
+/* ==== karty, mriežky, riadky ==== */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(260px,1fr)); gap:16px}
+.row{display:flex; align-items:center; gap:10px}
+.right{justify-content:flex-end}
+.muted{color:var(--muted)}
+.mt{margin-top:16px}
+
+/* ==== toolbar v plánovaní dávky ==== */
+.toolbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; flex-wrap:wrap; margin-bottom:12px;
+}
+.toolbar .row{display:flex; gap:10px; align-items:center}
+label{display:flex; gap:6px; align-items:center; color:var(--muted); font-weight:600}
+input[type="number"], input[type="date"], select{
+  height:38px; border:1px solid var(--border); border-radius:10px;
+  padding:0 10px; font:inherit; background:#fff; color:inherit;
+}
+
+/* ==== tlačidlá ==== */
+.btn{
+  border:0; background:#e5e7eb; color:#111827;
+  border-radius:10px; padding:10px 14px; font-weight:600; cursor:pointer;
+}
+.btn:hover{filter:brightness(.97)}
+.btn-primary{background:var(--brand-600); color:#fff}
+.btn-primary:hover{background:var(--brand-700)}
+.btn-danger{background:#b91c1c; color:#fff}
+.btn-danger:hover{background:#991b1b}
+.btn-success{background:#16a34a; color:#fff}
+
+/* ==== tabuľky ==== */
+.table-wrap{overflow:auto; border:1px solid var(--border); border-radius:12px; background:#fff}
+.table{width:100%; border-collapse:separate; border-spacing:0}
+.table thead th{
+  text-align:left; font-weight:700; color:#374151; padding:12px;
+  background:#fff5f5; border-bottom:1px solid var(--border);
+}
+.table tbody td{ padding:12px; border-bottom:1px solid var(--border) }
+.table tfoot td{
+  padding:12px; background:#fff5f5; border-top:1px solid var(--border)
+}
+.num{text-align:right}
+
+/* tabuľka surovín v plánovaní */
+#ingredients-table table{ width:100%; border-collapse:separate; border-spacing:0 }
+#ingredients-table th{ background:#fff5f5; border-bottom:1px solid var(--border) }
+#ingredients-table td{ border-bottom:1px solid var(--border) }
+#ingredients-table tr.loss td{ color:#b00020 }
+
+/* ==== inventúra – taby ==== */
+.tabs{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0}
+.inventory-tab-btn{
+  padding:8px 12px; border:1px solid var(--border); border-radius:10px;
+  background:#fff; cursor:pointer;
+}
+.inventory-tab-btn.active{ background:#ffe9e9; color:var(--brand-700); border-color:var(--brand-600) }
+.inventory-category{ display:none }
+.inventory-category.active{ display:block }
+
+/* ==== karty na dashboarde ==== */
+.task-group{ margin: 12px 0 }
+.task-card{
+  background:#fff; border:1px solid var(--border); border-radius:12px;
+  padding:10px; margin:6px 0; box-shadow:var(--shadow);
+}
+.task-card.planned{ border-left:4px solid var(--brand-600) }
+.task-card.running{ border-left:4px solid #f59e0b }
+
+/* ==== responzívne ==== */
+@media (max-width: 1100px){
+  .layout{ grid-template-columns: 1fr; }
+  .grid2{ grid-template-columns: 1fr; }
+  .sidebar{ position:static }
+}
+/* === CLICK FIX (pridať na úplný koniec vyroba.css) ===================== */
+
+/* Sidebar + obsah sú klikateľné, nič ich neblokuje */
+.sidebar, .content, .topbar { position: relative; z-index: 1; pointer-events: auto !important; }
+
+/* Základné interaktívne prvky – vždy klikateľné */
+button, a, input, select, label,
+.nav-item, .btn, .card, .toolbar, .view, .content { pointer-events: auto !important; }
+
+/* Views – ukáž len aktívny */
+.view { display: none; }
+.view.active { display: block; }
+
+/* Vypni bežné overlaye, ak by ostali visieť z iných modulov */
+#login-wrapper,
+.login-overlay,
+.modal-backdrop,
+.modal-root,
+.cover,
+.backdrop,
+.drawer-overlay,
+.offcanvas,
+.offcanvas-backdrop,
+body > .overlay {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Ak by existoval full-screen prekryv mimo #vyroba-app (absolútny alebo fixný), 
+   zneškodni ho – *len* ak nie je potomok #vyroba-app */
+body > *:not(#vyroba-app)[style*="position: fixed"],
+body > *:not(#vyroba-app)[style*="position:fixed"],
+body > *:not(#vyroba-app)[style*="position: absolute"],
+body > *:not(#vyroba-app)[style*="position:absolute"] {
+  pointer-events: none !important;
+  /* display: none !important;  ← ak chceš úplne schovať, odkomentuj */
+}
+/* Tabuľky v module Výroba – stabilné šírky stĺpcov */
+.table { table-layout: fixed; width: 100%; }
+.table col.col-name   { width: 52%; }
+.table col.col-qty    { width: 16%; }
+.table col.col-price  { width: 16%; }
+.table col.col-value  { width: 16%; }
+.table th, .table td { vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.table { table-layout: fixed; width: 100%; }
+.table col.col-name{width:52%}.table col.col-qty{width:16%}.table col.col-price{width:16%}.table col.col-value{width:16%}
+.table th,.table td{vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table .num{text-align:right;font-variant-numeric:tabular-nums}
+/* Weekly widgety na dashboarde – väčšie a vzdušnejšie */
+.weekly-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card-big {
+  padding: 16px 18px;
+  min-height: 340px;            /* vyššia karta, aby tabuľka nebola natlačená */
+}
+
+.card-big h3 {
+  margin: 0 0 10px 0;
+}
+
+.card-big .table th,
+.card-big .table td {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+@media (min-width: 1400px) {
+  /* rozšírime pracovnú plochu – ak máš niekde .content s max-width, prebijeme ju */
+  .content { max-width: 1400px; }
+  .weekly-widgets { gap: 24px; }
+}
+
+@media (min-width: 1700px) {
+  .content { max-width: 1600px; }
+  .weekly-widgets { grid-template-columns: 1.2fr 1fr; } /* suroviny širšie ako plán */
+}
+/* Zvýš šírku obsahu */
+.content { max-width: 1400px; }
+
+/* Základný 2-stĺpcový grid dashboardu (ak ešte nemáš) */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* WEEKLY blok nech zaberie obe kolóny hlavného gridu */
+.grid2 .weekly-widgets {
+  grid-column: 1 / -1; /* presiahne cez oba stĺpce */
+}
+
+/* Vo vnútri weekly sekcie nech sú dva väčšie boxy vedľa seba */
+.weekly-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Väčšia karta */
+.card-big {
+  padding: 18px 20px;
+  min-height: 420px;
+}
+
+/* Väčší text v tabuľkách weekly */
+.card-big .table th,
+.card-big .table td {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+/* Na menších displejoch weekly pod seba */
+@media (max-width: 1200px) {
+  .weekly-widgets { grid-template-columns: 1fr; }
+}
+
+/* Ak máš fakt široký monitor, ešte rozšír */
+@media (min-width: 1600px) {
+  .content { max-width: 1600px; }
+  .weekly-widgets { gap: 24px; }
+  .card-big { min-height: 460px; }
+}

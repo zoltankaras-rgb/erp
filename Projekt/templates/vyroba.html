@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <title>Výroba • ERP MIK</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
+  <!-- Štýly pre Výrobu -->
+  <link rel="stylesheet" href="/static/css/vyroba.css">
+
+  <!-- Webfont (voliteľné) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="icon" type="image/png" href="/static/img/logo.png">
+
+  <!-- Mini doplnok na zväčšenie weekly boxov a pracovnej šírky -->
+  <style>
+    /* zväčšenie pracovnej šírky obsahu */
+    .content { max-width: 1400px; margin: 0 auto; }
+
+    /* základný 2-stĺpcový grid pre dashboard (ak už máš vo vyroba.css, toto nevadí) */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* weekly sekcia – samostatne pod hlavným gridom */
+    .weekly-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
+
+    /* väčšie karty weekly */
+    .card-big { padding: 18px 20px; min-height: 420px; }
+    .card-big h3 { margin: 0 0 10px 0; }
+    .card-big .table th, .card-big .table td { font-size: 15px; line-height: 1.35; }
+
+    /* menšie displeje: weekly pod seba */
+    @media (max-width: 1200px) {
+      .weekly-widgets { grid-template-columns: 1fr; }
+    }
+    /* širšie displeje: ešte širšia plocha */
+    @media (min-width: 1600px) {
+      .content { max-width: 1600px; }
+      .weekly-widgets { gap: 24px; }
+      .card-big { min-height: 460px; }
+    }
+  </style>
+</head>
+<body>
+<div id="vyroba-app" class="vyroba-app">
+
+  <!-- HLAVIČKA -->
+  <header class="topbar">
+    <div class="brand">Výroba</div>
+    <div id="status-bar" class="status"></div>
+  </header>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <nav class="nav">
+        <a class="nav-item active" data-view="view-dashboard">Dashboard</a>
+        <a class="nav-item" data-view="view-warehouse">Sklad</a>
+        <a class="nav-item" data-view="view-start-production-category">Spustiť výrobu</a>
+        <a class="nav-item" data-view="view-inventory">Inventúra</a>
+        <a class="nav-item" data-view="view-manual-writeoff">Ručný odpis</a>
+      </nav>
+    </aside>
+
+    <!-- OBSAH -->
+    <main id="main-content" class="content">
+
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <h2>Dashboard</h2>
+
+        <!-- hlavný dvojstĺpcový grid: Naplánované + Prebiehajúce -->
+        <div class="grid2">
+          <div class="card">
+            <h3>Naplánované</h3>
+            <div id="planned-tasks-container"><p>Načítavam…</p></div>
+          </div>
+
+          <div class="card">
+            <h3>Prebiehajúce</h3>
+            <div id="running-tasks-container"><p>Načítavam…</p></div>
+          </div>
+        </div>
+
+        <!-- samostatná sekcia: väčšie weekly boxy -->
+        <div class="weekly-widgets">
+          <div class="card card-big">
+            <h3>Potreba surovín (7 dní)</h3>
+            <div id="weekly-needs-box"></div>
+          </div>
+          <div class="card card-big">
+            <h3>Plán výroby (7 dní)</h3>
+            <div id="weekly-plan-box"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SKLAD -->
+      <section id="view-warehouse" class="view" style="display:none">
+        <h2>Výrobný sklad</h2>
+
+        <div class="card">
+          <div class="row" style="align-items:center; gap:8px">
+            <label for="warehouse-filter">Filter</label>
+            <input id="warehouse-filter" type="text" placeholder="Hľadať názov / EAN…" />
+            <span class="muted" id="warehouse-count" style="margin-left:auto"></span>
+          </div>
+
+          <div class="table-wrap" style="margin-top:8px">
+            <table class="table" id="warehouse-table">
+              <thead>
+                <tr>
+                  <th>Produkt</th>
+                  <th class="num">Množstvo</th>
+                  <th class="num">Priem. cena</th>
+                  <th class="num">Hodnota</th>
+                </tr>
+              </thead>
+              <tbody><!-- dynamicky --></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- KROK 1: Výber produktu (zoznam receptov) -->
+      <section id="view-start-production-category" class="view" style="display:none">
+        <h2>Plánovanie výroby – Produkty s receptom</h2>
+        <div id="category-container" class="list"></div>
+      </section>
+
+      <!-- KROK 2: Plánovanie dávky -->
+      <section id="view-batch-planning" class="view" style="display:none">
+        <div class="toolbar">
+          <h2 id="batch-planning-title">Plánovanie</h2>
+          <div class="row">
+            <label>Množstvo (kg)
+              <input id="planned-weight" type="number" step="0.1" min="0" value="100">
+            </label>
+            <label>Dátum výroby
+              <input id="production-date" type="date">
+            </label>
+            <button id="start-production-btn" class="btn btn-primary" disabled>Spustiť výrobu</button>
+          </div>
+        </div>
+
+        <div id="ingredients-check-area" style="display:none">
+          <h3>Potrebné suroviny</h3>
+          <div id="ingredients-table"></div>
+        </div>
+      </section>
+
+      <!-- Inventúra -->
+      <section id="view-inventory" class="view" style="display:none">
+        <h2>Inventúra – Výrobný sklad</h2>
+        <div class="tabs" id="inventory-tabs-container"></div>
+        <div id="inventory-tables-container"></div>
+        <div class="row right">
+          <button class="btn" onclick="vyroba.submitInventory()">Uložiť inventúru</button>
+        </div>
+      </section>
+
+      <!-- Ručný odpis -->
+      <section id="view-manual-writeoff" class="view" style="display:none">
+        <h2>Ručný odpis</h2>
+        <div class="row">
+          <label>Surovina
+            <select id="writeoff-item-select"></select>
+          </label>
+          <label>Množstvo (kg)
+            <input id="writeoff-quantity" type="number" step="0.01" min="0">
+          </label>
+          <label>Poznámka
+            <input id="writeoff-note" type="text" placeholder="dôvod/poznámka">
+          </label>
+          <label>Pracovník
+            <input id="writeoff-worker" type="text" placeholder="Meno pracovníka">
+          </label>
+        </div>
+        <button class="btn btn-danger" onclick="vyroba.submitManualWriteoff()">Odpis</button>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- (Voliteľne) spoločné utility -->
+<script defer src="/static/js/common.js?v=gate1"></script>
+
+<!-- Hlavný JS modulu Výroba -->
+<script defer src="/static/js/vyroba/vyroba.js?v=9"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', ()=> {
+    if (window.vyroba && typeof vyroba.initialize === 'function') {
+      vyroba.initialize();
+    }
+  });
+</script>
+
+</body>
+</html>

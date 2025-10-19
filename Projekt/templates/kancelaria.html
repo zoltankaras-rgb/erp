@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta charset="utf-8" />
+  <title>Kancelária • ERP MIK s.r.o.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Favicon (PNG, žiadne .ico 404) -->
+  <link rel="icon" type="image/png" href="/static/img/logo.png">
+
+  <!-- Hlavný štýl -->
+  <link rel="stylesheet" href="/static/css/kancelaria.css?v=4" />
+
+  <!-- Webfont -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="app" class="ka-root">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="brand">
+      <img src="/static/img/logo.png" alt="logo" class="brand-logo">
+      <span class="brand-title">ERP MIK s.r.o.</span>
+    </div>
+    <div class="top-actions">
+      <button id="logout-btn" class="btn btn-outline">Odhlásiť</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <nav class="nav">
+        <a data-section="dashboard"     class="nav-link">Dashboard</a>
+        <a data-section="stock"         class="nav-link">Sklad - Výroba - Príjem</a>
+        <a data-section="planning"      class="nav-link">Plánovanie</a>
+        <a data-section="erp"           class="nav-link">Centrálny katalóg produktov</a>
+        <a data-section="akcie"         class="nav-link">Akcie</a>
+        <a data-section="b2b"           class="nav-link">B2B</a>
+        <a data-section="b2c"           class="nav-link">B2C</a>
+        <a data-section="ai"            class="nav-link">AI Asistent</a>
+        <a data-section="communication" class="nav-link">Komunikácia <span id="menu-unread" class="nav-badge"></span></a>
+        <a data-section="haccp"         class="nav-link">HACCP</a>
+        <a data-section="fleet"         class="nav-link">Flotila</a>
+        <a data-section="hygiene"       class="nav-link">Hygiena</a>
+        <a data-section="profitability" class="nav-link">Ziskovosť</a>
+        <a data-section="costs"         class="nav-link">Náklady</a>
+      </nav>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content">
+
+      <!-- DASHBOARD -->
+      <section id="section-dashboard" class="section active">
+        <div class="section-header">
+          <h2>Dashboard</h2>
+        </div>
+
+        <div id="dashboard-slot" class="grid-dashboard">
+          <article class="card">
+            <h3 class="card-title">B2B objednávky</h3>
+            <div class="table-wrap">
+              <table class="table" id="tbl-b2b">
+                <thead><tr><th>Číslo</th><th>Zákazník</th><th>Dátum</th><th>Dodanie</th><th>Stav</th><th class="num">Celkom (€)</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3 class="card-title">B2C objednávky</h3>
+            <div class="table-wrap">
+              <table class="table" id="tbl-b2c">
+                <thead><tr><th>ID</th><th>Dátum</th><th class="num">Body</th><th class="num">Celkom s DPH (€)</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+
+          <aside class="card">
+            <h3 class="card-title">Nové registrácie</h3>
+            <div class="mt"><h4 class="muted">B2B (na schválenie)</h4><ul class="list" id="list-b2b-regs"></ul></div>
+            <div class="mt"><h4 class="muted">B2C (bez schválenia)</h4><ul class="list" id="list-b2c-regs"></ul></div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- AI ASISTENT -->
+      <section id="section-ai" class="section">
+        <div class="section-header"><h2>AI Asistent</h2></div>
+      </section>
+
+      <!-- KOMUNIKÁCIA -->
+      <section id="section-communication" class="section">
+        <div class="section-header"><h2>Komunikácia</h2></div>
+      </section>
+
+      <!-- SKLAD -->
+      <section id="section-stock" class="section">
+        <h2>Sklad</h2>
+
+        <div class="card actions-card">
+          <div class="toolbar toolbar-center">
+            <button id="stock-show-overview"       class="btn"             type="button">Prehľad skladu</button>
+            <button id="stock-open-receive-meat"   class="btn btn-primary" type="button">Príjem Mäso</button>
+            <button id="stock-open-receive-other"  class="btn btn-primary" type="button">Príjem Koreniny/Obaly/Pomocný materiál</button>
+            <button id="stock-open-add-material"   class="btn"             type="button">+ Nová surovina (výroba)</button>
+            <button id="stock-open-reports"        class="btn"             type="button">Reporty príjmu</button>
+            <button id="open-delivery-notes"       class="btn"             type="button">Dodacie listy</button>
+            <button id="stock-open-writeoff"       class="btn btn-danger"  type="button">Odpis</button>
+            <button id="stock-open-recipes"        class="btn"             type="button">Recepty</button>
+          </div>
+        </div>
+
+        <div class="card filters-card hidden" id="stock-filters">
+          <div class="toolbar">
+            <label>Výrobný sklad <select id="stock-warehouse"></select></label>
+            <label>Kategória <select id="stock-category"></select></label>
+            <button id="stock-refresh" class="btn">Filtrovať</button>
+          </div>
+        </div>
+
+        <div id="stock-overview" class="card mt hidden">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Sklad</th><th>EAN</th><th>Produkt</th><th>Kategória</th>
+                  <th class="num">Množstvo</th><th class="num">Priem. cena</th><th class="num">Hodnota (€)</th>
+                </tr>
+              </thead>
+              <tbody id="stock-tbody"></tbody>
+              <tfoot>
+                <tr><td colspan="6" class="num"><strong>Celkom</strong></td><td id="stock-total" class="num"><strong>0.00</strong></td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div id="panel-add-material" class="card muted-border hidden">
+          <h3>+ Nová surovina (výrobný sklad)</h3>
+          <div class="form-grid form-3">
+            <label>Názov suroviny
+              <input id="mat-name" placeholder="napr. Stehná bez kosti">
+            </label>
+            <label>Typ suroviny
+              <select id="mat-type">
+                <option value="Mäso">Mäso</option>
+                <option value="Koreniny">Koreniny</option>
+                <option value="Obaly">Obaly</option>
+                <option value="Pomocný materiál">Pomocný materiál</option>
+              </select>
+              <small>mapuje sa na tvoje kategórie z „Suroviny – kategórie“</small>
+            </label>
+            <label>DPH %
+              <input id="mat-vat" type="number" step="0.01" value="20.00">
+            </label>
+            <label>Minimálna zásoba (kg)
+              <input id="mat-min" type="number" step="0.001" value="0.000">
+            </label>
+            <div class="col-span-2"></div>
+            <div class="row right col-span-2">
+              <button id="mat-save" class="btn btn-primary">Uložiť surovinu</button>
+            </div>
+            <p id="mat-msg" class="muted col-span-2"></p>
+          </div>
+        </div>
+
+        <div id="stock-add-finished" class="card mt hidden"></div>
+      </section>
+
+      <!-- ERP -->
+      <section id="section-erp" class="section">
+        <div class="section-header"><h2>Centrálny katalóg produktov</h2></div>
+
+        <div class="row gap">
+          <button id="erp-tab-overview" class="btn">Prehľad katalógu</button>
+          <button id="erp-tab-addcat"   class="btn">Pridať predajnú kategóriu</button>
+          <button id="erp-tab-addprod"  class="btn btn-primary">Pridať produkt</button>
+          <button id="erp-tab-recipes"  class="btn">Recepty</button>
+        </div>
+
+        <div id="erp-panel-overview" class="card mt" style="display:none;"></div>
+        <div id="erp-panel-addcat"   class="card mt" style="display:none;"></div>
+        <div id="erp-panel-addprod"  class="card mt" style="display:none;"></div>
+        <div id="erp-panel-recipes"  class="card mt" style="display:none;"></div>
+      </section>
+
+      <!-- AKCIE -->
+      <section id="section-akcie" class="section"></section>
+
+      <!-- ĎALŠIE SEKCIE -->
+      <section id="section-planning" class="section"><div class="section-header"><h2>Plánovanie</h2></div></section>
+      <section id="section-b2b" class="section"><h2>B2B</h2></section>
+      <section id="section-b2c" class="section"><h2>B2C</h2></section>
+      <section id="section-haccp" class="section"><h2>HACCP</h2></section>
+      <section id="section-fleet" class="section"></section>
+      <section id="section-hygiene" class="section"></section>
+      <section id="section-profitability" class="section"></section>
+      <section id="section-costs" class="section"></section>
+
+    </main>
+  </div>
+
+  <!-- 1x modal -->
+  <div id="modal-root" class="modal hidden">
+    <div class="modal__backdrop" data-action="modal-close"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true">
+      <button class="modal__close" data-action="modal-close" aria-label="Zavrieť">&times;</button>
+      <div id="modal-body" class="modal__content"></div>
+    </div>
+  </div>
+
+  <!-- Základné skripty -->
+<script defer src="/static/js/common.js?v=gate1"></script>
+  <script src="/static/js/kancelaria.js?v=4"></script>
+
+  <!-- moduly (ESM) -->
+  <script type="module" src="/static/js/ui/modal.js"></script>
+  <script type="module" src="/static/js/kancelaria/index.js"></script>
+  <script type="module" src="/static/js/kancelaria_modules/erp_admin.js?v=105"></script>
+  <script type="module" src="/static/js/kancelaria_modules/akcie.js?v=3"></script>
+  <script type="module" src="/static/js/kancelaria/fleet.js?v=12"></script>
+  <script type="module" src="/static/js/kancelaria/hygiene.js?v=3"></script>
+
+  <!-- ďalšie moduly -->
+  <script defer src="/static/js/kancelaria/ai.js?v=1"></script>
+  <script defer src="/static/js/kancelaria/communication.js?v=1"></script>
+  <script defer src="/static/js/kancelaria/costs.js?v=11"></script>
+  <script defer src="/static/js/kancelaria/dashboard.js?v=5"></script>
+  <script defer src="/static/js/kancelaria/tables.js?v=1"></script>
+
+  <!-- Ziskovosť (bez module) -->
+  <script src="/static/js/kancelaria/profitability.js?v=11"></script>
+  <!-- SKLAD (ES module, ale exportujeme window.initializeStockModule) -->
+  <script type="module" src="/static/js/kancelaria/stock.js?v=22"></script>
+
+  <!-- Unread badge updater (ponechané) -->
+  <script>
+  (function() {
+    function readCsrf() {
+      const m = document.querySelector('meta[name="csrf-token"]');
+      if (m && m.content) return m.content;
+      const c = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+      return c ? decodeURIComponent(c[1]) : '';
+    }
+    async function upd(){
+      try{
+        const token = readCsrf();
+        const r = await fetch('/api/kancelaria/comm/unreadCount', {
+          method:'POST',
+          credentials:'same-origin',
+          headers: {
+            'Content-Type':'application/json',
+            'Accept':'application/json',
+            'X-CSRF-Token': token
+          },
+          body: JSON.stringify({ csrf_token: token })
+        });
+        const t = await r.text(); const j = JSON.parse(t);
+        const el = document.getElementById('menu-unread');
+        if (el) el.textContent = (j.unread>0 ? j.unread : '');
+      }catch(_){}
+    }
+    upd(); setInterval(upd, 60000);
+  })();
+  </script>
+
+</div>
+</body>
+</html>
